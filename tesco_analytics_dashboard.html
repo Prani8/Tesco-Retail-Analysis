@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesco Retail Productivity Dashboard — 2023</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eef1f7;color:#1a1a2e;min-height:100vh;padding:24px}
+.page{max-width:1320px;margin:0 auto}
+.navbar{background:#042C53;border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(4,44,83,0.25)}
+.nb-left{display:flex;align-items:center;gap:14px}
+.nb-logo{width:40px;height:40px;border-radius:10px;background:#185FA5;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+.nb-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:2px}
+.nb-sub{font-size:11px;color:rgba(255,255,255,0.45)}
+.nb-right{display:flex;align-items:center;gap:12px}
+.nb-badge{font-size:10px;padding:4px 12px;border-radius:20px;background:rgba(29,158,117,0.2);color:#5DCAA5;border:1px solid rgba(29,158,117,0.35);font-weight:600;letter-spacing:.04em}
+.nb-name{font-size:11px;color:rgba(255,255,255,0.4);font-weight:500}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.fl{font-size:11px;color:#6c757d;font-weight:600;margin-right:2px}
+.fp{font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid #dee2e6;color:#6c757d;background:#fff;cursor:pointer;font-weight:500;transition:all .2s}
+.fp:hover{border-color:#185FA5;color:#185FA5}
+.fp.on{background:#185FA5;color:#fff;border-color:#185FA5}
+.fp.q{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kt{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e9ecef;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.kt-stripe{height:4px;width:100%}
+.kt-body{padding:16px 18px}
+.kt-icon-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kt-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.kt-trend{font-size:20px;color:#dee2e6}
+.kt-val{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.kt-lbl{font-size:10px;color:#adb5bd;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px}
+.kt-delta{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px}
+.sec{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.sec-t{font-size:10px;font-weight:800;color:#adb5bd;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.sec-l{flex:1;height:1px;background:#e9ecef}
+.card{background:#fff;border-radius:12px;padding:20px 22px;border:1px solid #e9ecef;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.ct{font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:3px}
+.cs{font-size:11px;color:#adb5bd;margin-bottom:14px}
+.ib{margin-top:10px;padding:8px 12px;background:#f8f9fa;border-radius:8px;border-left:3px solid #B5D4F4;font-size:11px;color:#495057;line-height:1.5}
+.ib b{color:#0C447C}
+.r-full{margin-bottom:14px}
+.r2{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:14px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:#6c757d;font-weight:500}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.ldc{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.donut-out{display:flex;gap:18px;align-items:center}
+.donut-wrap{position:relative;flex-shrink:0}
+.donut-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.donut-ctr-v{font-size:16px;font-weight:800;color:#1a1a2e}
+.donut-ctr-s{font-size:10px;color:#adb5bd;margin-top:1px}
+.cat-leg{flex:1;display:flex;flex-direction:column;gap:7px}
+.cat-row{display:grid;grid-template-columns:10px 1fr 44px 68px;align-items:center;gap:0 8px}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cat-name{font-size:11px;color:#495057;font-weight:500}
+.cat-pct{font-size:12px;font-weight:800;color:#1a1a2e;text-align:right}
+.cat-val{font-size:10px;color:#adb5bd;text-align:right}
+.sr-grid{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sr{display:flex;align-items:center;gap:10px}
+.sr-name{font-size:11px;color:#6c757d;width:82px;text-align:right;flex-shrink:0;font-weight:600}
+.sr-track{flex:1;height:22px;background:#f1f3f5;border-radius:6px;overflow:hidden}
+.sr-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px}
+.sr-val{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+.sr-cr{font-size:11px;font-weight:800;width:38px;text-align:right;flex-shrink:0}
+.footer{text-align:center;font-size:11px;color:#adb5bd;margin-top:18px;padding:16px;background:#fff;border-radius:12px;border:1px solid #e9ecef}
+.footer b{color:#185FA5}
+@media(max-width:960px){.krow{grid-template-columns:1fr 1fr}.r2,.r3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="navbar">
+  <div class="nb-left">
+    <div class="nb-logo">T</div>
+    <div>
+      <div class="nb-title">Tesco Retail Productivity Dashboard</div>
+      
+    </div>
+  </div>
+  <div class="nb-right">
+    <div class="nb-badge">2023 Annual Report</div>
+    <div class="nb-name">Praneet Sivakumar</div>
+  </div>
+</div>
+
+<div class="filters">
+  <span class="fl">Filter by</span>
+  <div class="fp on">All Stores</div>
+  <div class="fp on">All Categories</div>
+  <div class="fp on">Fulfilled Only</div>
+  <div class="fp q">Q1 Jan–Mar</div>
+  <div class="fp q">Q2 Apr–Jun</div>
+  <div class="fp q">Q3 Jul–Sep</div>
+  <div class="fp q">Q4 Oct–Dec</div>
+</div>
+
+<div class="krow">
+  <div class="kt">
+    <div class="kt-stripe" style="background:linear-gradient(90deg,#042C53,#378ADD)"></div>
+    <div class="kt-body">
+      <div class="kt-icon-row">
+        <div class="kt-icon" style="background:#E6F1FB">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <span class="kt-trend" style="color:#185FA5;font-size:22px">↗</span>
+      </div>
+      <div class="kt-val" style="color:#0C447C">GBP 72,103</div>
+      <div class="kt-lbl">Total Revenue</div>
+      <span class="kt-delta" style="background:#E6F1FB;color:#0C447C">▲ Dec peak GBP 6,516</span>
+    </div>
+  </div>
+  <div class="kt">
+    <div class="kt-stripe" style="background:linear-gradient(90deg,#085041,#5DCAA5)"></div>
+    <div class="kt-body">
+      <div class="kt-icon-row">
+        <div class="kt-icon" style="background:#E1F5EE">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <span class="kt-trend" style="color:#1D9E75">✓</span>
+      </div>
+      <div class="kt-val" style="color:#085041">13,882</div>
+      <div class="kt-lbl">Fulfilled Orders</div>
+      <span class="kt-delta" style="background:#E1F5EE;color:#085041">▲ 92.5% fulfilment rate</span>
+    </div>
+  </div>
+  <div class="kt">
+    <div class="kt-stripe" style="background:linear-gradient(90deg,#791F1F,#E24B4A)"></div>
+    <div class="kt-body">
+      <div class="kt-icon-row">
+        <div class="kt-icon" style="background:#FCEBEB">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <span class="kt-trend" style="color:#E24B4A">↓</span>
+      </div>
+      <div class="kt-val" style="color:#A32D2D">7.5%</div>
+      <div class="kt-lbl">Cancellation Rate</div>
+      <span class="kt-delta" style="background:#FCEBEB;color:#A32D2D">▼ 1,118 orders lost</span>
+    </div>
+  </div>
+  <div class="kt">
+    <div class="kt-stripe" style="background:linear-gradient(90deg,#633806,#EF9F27)"></div>
+    <div class="kt-body">
+      <div class="kt-icon-row">
+        <div class="kt-icon" style="background:#FAEEDA">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BA7517" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <span class="kt-trend" style="color:#BA7517">↑</span>
+      </div>
+      <div class="kt-val" style="color:#633806">GBP 5.19</div>
+      <div class="kt-lbl">Avg Order Value</div>
+      <span class="kt-delta" style="background:#FAEEDA;color:#633806">▲ Clubcard +8% uplift</span>
+    </div>
+  </div>
+</div>
+
+<div class="sec"><div class="sec-t">Revenue Analysis</div><div class="sec-l"></div></div>
+
+<div class="r-full">
+  <div class="card">
+    <div class="ct">Monthly Revenue — Full Year 2023</div>
+    <div class="cs">Dark blue = above annual average &nbsp;·&nbsp; Light blue = below average &nbsp;·&nbsp; Line shows monthly trend direction</div>
+    <div style="position:relative;height:170px">
+      <canvas id="monthly" role="img" aria-label="Monthly revenue bar and line chart for 2023. December peaks at GBP 6,516.">Monthly revenue for all 12 months. December peaks at GBP 6,516. February is lowest at GBP 5,361.</canvas>
+    </div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#185FA5"></div>Above avg (GBP 5,927)</div>
+      <div class="li"><div class="ld" style="background:#B5D4F4"></div>Below avg</div>
+      <div class="li"><div class="ldc" style="background:#0C447C"></div>Trend line</div>
+      <div class="li"><div class="ld" style="background:#ccc;border:1px dashed #999"></div>Annual average</div>
+    </div>
+    <div class="ib"><b>Finding:</b> December is 21% above the annual average — stock build and staffing plans should begin in October. February is the weakest trading month and a candidate for targeted promotional activity.</div>
+  </div>
+</div>
+
+<div class="r2">
+  <div class="card">
+    <div class="ct">Seasonal Revenue Shape</div>
+    <div class="cs">Area fill shows the seasonal curve — February low to December peak</div>
+    <div style="position:relative;height:195px">
+      <canvas id="area" role="img" aria-label="Area chart of monthly revenue showing seasonal shape. February dips then climbs to December peak.">Seasonal revenue shape from January to December 2023.</canvas>
+    </div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#185FA5"></div>Monthly revenue</div>
+      <div class="li"><div class="ld" style="background:#ccc;border:1px dashed #999"></div>Annual avg GBP 5,927</div>
+    </div>
+    <div class="ib"><b>Recommendation:</b> Target February with promotional activity. Scale capacity from October for the Q4 demand surge.</div>
+  </div>
+  <div class="card">
+    <div class="ct">Revenue by Category</div>
+    <div class="cs">Share of GBP 72,103 total — hover for exact GBP value</div>
+    <div class="donut-out">
+      <div class="donut-wrap">
+        <canvas id="donut" width="170" height="195" role="img" aria-label="Donut chart of revenue by category. Meat and Fish leads at 20.3 percent.">8 product categories. Meat and Fish leads at 20.3% with GBP 14,636.</canvas>
+        <div class="donut-ctr">
+          <div class="donut-ctr-v">GBP 72k</div>
+          <div class="donut-ctr-s">8 categories</div>
+        </div>
+      </div>
+      <div class="cat-leg">
+        <div class="cat-row"><div class="cat-dot" style="background:#042C53"></div><div class="cat-name">Meat &amp; Fish</div><div class="cat-pct">20.3%</div><div class="cat-val">GBP 14,636</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#185FA5"></div><div class="cat-name">Grocery</div><div class="cat-pct">15.6%</div><div class="cat-val">GBP 11,248</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#534AB7"></div><div class="cat-name">Household</div><div class="cat-pct">14.7%</div><div class="cat-val">GBP 10,599</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#378ADD"></div><div class="cat-name">Drinks</div><div class="cat-pct">12.1%</div><div class="cat-val">GBP 8,724</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#85B7EB"></div><div class="cat-name">Frozen</div><div class="cat-pct">10.7%</div><div class="cat-val">GBP 7,715</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#1D9E75"></div><div class="cat-name">H &amp; Beauty</div><div class="cat-pct">10.6%</div><div class="cat-val">GBP 7,643</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#5DCAA5"></div><div class="cat-name">Fresh Produce</div><div class="cat-pct">8.5%</div><div class="cat-val">GBP 6,129</div></div>
+        <div class="cat-row"><div class="cat-dot" style="background:#B5D4F4"></div><div class="cat-name">Bakery</div><div class="cat-pct">7.5%</div><div class="cat-val">GBP 5,409</div></div>
+      </div>
+    </div>
+    <div class="ib"><b>Finding:</b> Meat &amp; Fish contributes 20.3% of network revenue but carries the 2nd highest cancellation rate — the largest single productivity improvement opportunity.</div>
+  </div>
+</div>
+
+<div class="sec"><div class="sec-t">Productivity &amp; Operations</div><div class="sec-l"></div></div>
+
+<div class="r3">
+  <div class="card">
+    <div class="ct">Cancellation Rate by Category</div>
+    <div class="cs">Red = above 7.5% network average &nbsp;·&nbsp; Green = within target</div>
+    <div style="position:relative;height:215px">
+      <canvas id="cancel" role="img" aria-label="Horizontal bar chart of cancellation rates. Health and Beauty worst at 10.0 percent in red.">Health and Beauty 10.0%, Meat and Fish 9.5%, Household 8.8% exceed the network average.</canvas>
+    </div>
+    <div class="ib"><b>Action required:</b> 3 categories exceed the network average. Audit stock availability for Health &amp; Beauty, Meat &amp; Fish, and Household. Implement automated alerting when any category exceeds 10%.</div>
+  </div>
+  <div class="card">
+    <div class="ct">Store Performance</div>
+    <div class="cs">Revenue bar &nbsp;·&nbsp; Right = cancellation rate (red = above network avg)</div>
+    <div class="sr-grid" id="storeRows"></div>
+    <div class="leg" style="margin-top:12px">
+      <div class="li"><div class="ldc" style="background:#E24B4A"></div>Above network avg</div>
+      <div class="li"><div class="ldc" style="background:#1D9E75"></div>Within target</div>
+    </div>
+    <div class="ib"><b>Finding:</b> Welwyn Garden City leads revenue at GBP 14,972 but carries an 8.5% cancellation rate — the highest revenue and highest improvement potential store in the network.</div>
+  </div>
+  <div class="card">
+    <div class="ct">Day-of-Week Trading Pattern</div>
+    <div class="cs">Darker blue = higher revenue &nbsp;·&nbsp; Saturday is peak trading day</div>
+    <div style="position:relative;height:215px">
+      <canvas id="daybar" role="img" aria-label="Vertical gradient bar chart by day of week. Saturday darkest at highest revenue. Monday lightest at lowest.">Saturday is the highest revenue day. Monday is the lowest. Weekends drive peak volume.</canvas>
+    </div>
+    <div class="ib"><b>Recommendation:</b> Align delivery schedules and staffing rotas to weekend demand concentration. Monday–Wednesday are consistently below the daily average.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <b>Tesco Retail Productivity Dashboard</b> &nbsp;·&nbsp; Full Year 2023 &nbsp;·&nbsp; 8 Hertfordshire Stores &nbsp;·&nbsp; 15,000 Transactions &nbsp;·&nbsp; Analyst: <b>Praneet Sivakumar</b> &nbsp;·&nbsp; Python &nbsp;·&nbsp; Pandas &nbsp;·&nbsp; Tableau &nbsp;·&nbsp; Chart.js
+</div>
+
+</div>
+<script>
+const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const R=[5539,5361,5765,5878,5910,6021,6180,6050,5820,5890,6190,6516];
+const AV=5927;
+const tc='#adb5bd';
+const gc='rgba(0,0,0,0.04)';
+const ft={size:11,family:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"};
+
+new Chart(document.getElementById('monthly'),{type:'bar',data:{labels:M,datasets:[
+  {type:'bar',data:R,backgroundColor:R.map(v=>v>=AV?'#185FA5':'#B5D4F4'),borderRadius:6,borderSkipped:false,barPercentage:.62,order:2},
+  {type:'line',data:R,borderColor:'#0C447C',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#0C447C',pointBorderColor:'#fff',pointBorderWidth:2,fill:false,tension:0.35,order:1},
+  {type:'line',data:Array(12).fill(AV),borderColor:'rgba(0,0,0,0.14)',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false,order:3}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'GBP '+ctx.parsed.y.toLocaleString()}}},scales:{x:{grid:{display:false},ticks:{color:tc,font:ft,maxRotation:0}},y:{grid:{color:gc},min:5000,max:7000,ticks:{color:tc,font:ft,callback:v=>'GBP '+(v/1000).toFixed(1)+'k'}}}}});
+
+new Chart(document.getElementById('area'),{type:'line',data:{labels:M,datasets:[
+  {data:R,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.1)',fill:true,tension:0.45,pointRadius:4,pointBackgroundColor:'#185FA5',pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5},
+  {data:Array(12).fill(AV),borderColor:'rgba(0,0,0,0.14)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'GBP '+ctx.parsed.y.toLocaleString()}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:ft}},y:{grid:{color:gc},min:5000,max:7000,ticks:{color:tc,font:ft,callback:v=>'GBP '+(v/1000).toFixed(1)+'k'}}}}});
+
+new Chart(document.getElementById('donut'),{type:'doughnut',data:{labels:['Meat & Fish','Grocery','Household','Drinks','Frozen','H & Beauty','Fresh Produce','Bakery'],datasets:[{data:[20.3,15.6,14.7,12.1,10.7,10.6,8.5,7.5],backgroundColor:['#042C53','#185FA5','#534AB7','#378ADD','#85B7EB','#1D9E75','#5DCAA5','#B5D4F4'],borderWidth:3,borderColor:'#fff',hoverOffset:10}]},options:{responsive:false,maintainAspectRatio:false,cutout:'63%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed+'%  (GBP '+(ctx.parsed/100*72103).toFixed(0)+')'}}}}});
+
+const cR=[10.0,9.5,8.8,8.1,8.0,6.0,5.6,5.2];
+new Chart(document.getElementById('cancel'),{type:'bar',data:{labels:['H & Beauty','Meat & Fish','Household','Frozen','Fresh Prod','Bakery','Grocery','Drinks'],datasets:[{data:cR,backgroundColor:cR.map(r=>r>7.5?'#E24B4A':'#1D9E75'),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(1)+'% cancellation rate'}}},scales:{x:{grid:{color:gc},max:12,ticks:{color:tc,font:ft,callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:tc,font:ft}}}}});
+
+[{n:'Welwyn GC',rev:14972,cr:8.5},{n:'St Albans',rev:11206,cr:7.9},{n:'Hatfield',rev:11015,cr:7.6},{n:'Stevenage',rev:8740,cr:8.2},{n:'Luton',rev:8572,cr:7.4},{n:'Watford',rev:6966,cr:6.8},{n:'Hemel H',rev:5560,cr:7.3},{n:'Hertford',rev:5073,cr:7.1}].forEach(s=>{
+  const p=Math.round(s.rev/14972*100);
+  const bc=s.rev>11000?'#042C53':s.rev>9000?'#185FA5':s.rev>7000?'#378ADD':'#85B7EB';
+  const cc=s.cr>7.5?'#E24B4A':'#1D9E75';
+  const el=document.createElement('div');el.className='sr';
+  el.innerHTML=`<div class="sr-name">${s.n}</div><div class="sr-track"><div class="sr-fill" style="width:${p}%;background:${bc}"><span class="sr-val">GBP ${(s.rev/1000).toFixed(1)}k</span></div></div><div class="sr-cr" style="color:${cc}">${s.cr}%</div>`;
+  document.getElementById('storeRows').appendChild(el);
+});
+
+const dv=[8800,9200,9500,9800,10200,12400,12200],mx=Math.max(...dv);
+new Chart(document.getElementById('daybar'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:dv,backgroundColor:dv.map(v=>{const i=v/mx;return i>.97?'#042C53':i>.87?'#185FA5':i>.77?'#378ADD':i>.67?'#85B7EB':'#B5D4F4'}),borderRadius:7,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'GBP '+ctx.parsed.y.toLocaleString()}}},scales:{x:{grid:{display:false},ticks:{color:tc,font:ft}},y:{grid:{color:gc},ticks:{color:tc,font:ft,callback:v=>'GBP '+(v/1000).toFixed(0)+'k'}}}}});
+</script>
+</body>
+</html>
