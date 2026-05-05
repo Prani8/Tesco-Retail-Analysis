@@ -1,11 +1,5 @@
 # Tesco Retail Productivity Analyser — 2023
 
-**Analyst:** Praneet Sivakumar  
-**Organisation:** Tesco Stores Ltd — Operations Development & Productivity  
-**Scope:** Full Year 2023 · 8 Hertfordshire Stores · 15,000 Transactions  
-
----
-
 ## Overview
 
 This project delivers end-to-end retail productivity analysis for Tesco's Operations Development team. Using transactional data from 8 Hertfordshire stores across 2023, it identifies revenue patterns, fulfilment performance gaps, and store-level productivity opportunities — translating raw data into clear, actionable business recommendations for operational planning.
