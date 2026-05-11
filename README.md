@@ -1,4 +1,4 @@
-# Tesco Retail Productivity Analyser — 2023
+# Tesco Retail Productivity Analyser
 
 ## Overview
 
